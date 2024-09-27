@@ -135,7 +135,7 @@ impl PerceptronTagger {
                 else if token.parse::<usize>().is_ok() && token.len() == 4 {
                     "!YEAR"
                 }
-                else if token[0..1].parse::<usize>().is_ok() {
+                else if token.len() == 1 && token[0..1].parse::<usize>().is_ok() {
                     "!DIGITS" 
                 }
                 else {
