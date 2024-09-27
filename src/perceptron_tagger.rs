@@ -135,7 +135,7 @@ impl PerceptronTagger {
                 else if token.parse::<usize>().is_ok() && token.len() == 4 {
                     "!YEAR"
                 }
-                else if token.len() == 1 && token[0..1].parse::<usize>().is_ok() {
+                else if token.is_char_boundary(1) && token[0..1].parse::<usize>().is_ok() {
                     "!DIGITS" 
                 }
                 else {
@@ -190,14 +190,14 @@ impl PerceptronTagger {
         let mut features: HashMap<String,usize> = HashMap::new() ; 
         features.insert( "bias".to_owned() , 1 ) ; 
 
-        if word.len() > 3 {
+        if word.len() > 3 && word.is_char_boundary(word.len() - 3) {
             features.insert( format!( "{} {}" , "i suffix" , &word[ (word.len() - 3).. ] ) , 1 ) ; 
         }
         else {
             features.insert( format!( "{} {}" , "i suffix" , "" ) , 1 ) ; 
         }
 
-        if word.len() > 1 {
+        if word.len() > 1 && word.is_char_boundary(1) {
             features.insert( format!( "{} {}" , "i pref1" , &word.chars().nth(1).unwrap() ) , 1 ) ; 
         }
         else {
@@ -233,4 +233,23 @@ impl PerceptronTagger {
         features
     }
 
+}
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_is_joining_character() {
+        let tagger =
+            PerceptronTagger::new(
+                "tagger/weights.json",
+                "tagger/classes.txt",
+                "tagger/tags.json",
+            );
+
+        tagger.tag(&String::from("`"));
+        tagger.tag(&String::from("© ©"));
+    }
 }
